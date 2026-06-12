@@ -1,0 +1,462 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary);background:var(--color-background-tertiary)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+input,textarea,select{font-family:var(--font-sans)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);font-size:14px;cursor:pointer;transition:background .15s}
+.btn:hover{background:var(--color-background-secondary)}
+.btn-primary{background:#534AB7;color:#EEEDFE;border-color:#534AB7}
+.btn-primary:hover{background:#3C3489}
+.btn-danger{background:#FCEBEB;color:#791F1F;border-color:#F09595}
+.btn-danger:hover{background:#F7C1C1}
+.btn-danger-solid{background:#E24B4A;color:#FCEBEB;border-color:#E24B4A}
+.btn-danger-solid:hover{background:#A32D2D}
+.btn-sm{padding:5px 12px;font-size:13px}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px}
+.badge-ai{background:#EEEDFE;color:#3C3489}
+.badge-prog{background:#E6F1FB;color:#0C447C}
+.badge-games{background:#FAECE7;color:#712B13}
+.badge-innov{background:#EAF3DE;color:#27500A}
+.page{display:none}
+.page.active{display:block}
+.modal-overlay{display:none;min-height:300px;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:24px;max-width:380px;width:100%}
+</style>
+
+<h2 class="sr-only">Tech Collective — Blog tecnológico comunitario.</h2>
+
+<div id="app">
+
+<!-- NAV -->
+<nav style="background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100">
+  <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="goPage('home')">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="8" fill="#534AB7"/><circle cx="17" cy="17" r="6" fill="none" stroke="#EEEDFE" stroke-width="1.8"/><circle cx="17" cy="8" r="2.2" fill="#AFA9EC"/><circle cx="24.6" cy="21.5" r="2.2" fill="#AFA9EC"/><circle cx="9.4" cy="21.5" r="2.2" fill="#AFA9EC"/><line x1="17" y1="10.2" x2="17" y2="11" stroke="#EEEDFE" stroke-width="1.5"/><line x1="22.7" y1="20.2" x2="22.1" y2="19.5" stroke="#EEEDFE" stroke-width="1.5"/><line x1="11.3" y1="20.2" x2="11.9" y2="19.5" stroke="#EEEDFE" stroke-width="1.5"/><circle cx="17" cy="17" r="2.5" fill="#EEEDFE"/></svg>
+    <div>
+      <span style="font-weight:500;font-size:15px;letter-spacing:-.01em">Tech Collective</span>
+      <span style="font-size:11px;color:var(--color-text-tertiary);display:block;line-height:1;margin-top:1px">blog tecnológico</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:4px">
+    <button class="btn btn-sm" onclick="goPage('home')"><i class="ti ti-home" aria-hidden="true"></i> Inicio</button>
+    <button class="btn btn-sm" id="writeBtn" onclick="goPage('write')" style="display:none"><i class="ti ti-edit" aria-hidden="true"></i> Escribir</button>
+    <button class="btn btn-sm" id="profileNavBtn" onclick="goPage('profile')" style="display:none"><i class="ti ti-user" aria-hidden="true"></i> <span id="navUsername"></span></button>
+    <button class="btn btn-sm btn-primary" id="loginBtn" onclick="goPage('login')"><i class="ti ti-login" aria-hidden="true"></i> Entrar</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="pg-home" class="page active">
+  <div style="position:relative;overflow:hidden;min-height:280px;display:flex;align-items:flex-end">
+    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=85" alt="Portada Tech Collective" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center" onerror="this.style.display='none'">
+    <div style="position:absolute;inset:0;background:rgba(20,15,50,0.62)"></div>
+    <div style="position:absolute;inset:0;background:rgba(83,74,183,0.18)"></div>
+    <div style="position:relative;z-index:2;padding:32px 28px 36px;max-width:680px;margin:0 auto;width:100%">
+      <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.12);border:0.5px solid rgba(255,255,255,0.25);border-radius:20px;padding:4px 12px;margin-bottom:14px">
+        <svg width="13" height="13" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="6" fill="none" stroke="#CECBF6" stroke-width="2.5"/><circle cx="17" cy="8" r="2.8" fill="#CECBF6"/><circle cx="24.6" cy="21.5" r="2.8" fill="#CECBF6"/><circle cx="9.4" cy="21.5" r="2.8" fill="#CECBF6"/><circle cx="17" cy="17" r="3" fill="#fff"/></svg>
+        <span style="font-size:12px;color:rgba(255,255,255,0.9);letter-spacing:.04em">TECH COLLECTIVE</span>
+      </div>
+      <h1 style="font-size:28px;font-weight:500;color:#fff;line-height:1.25;margin-bottom:10px">Ideas que mueven<br>la tecnología</h1>
+      <p style="color:rgba(255,255,255,0.75);font-size:14px;margin-bottom:22px">Artículos sobre IA, programación, videojuegos e innovación — escritos por la comunidad.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="cat-filter btn btn-sm" data-cat="all" onclick="filterCat(this,'all')" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.3)"><i class="ti ti-layout-grid" aria-hidden="true"></i> Todos</button>
+        <button class="cat-filter btn btn-sm" data-cat="IA" onclick="filterCat(this,'IA')" style="background:rgba(174,169,236,0.25);color:#CECBF6;border-color:rgba(174,169,236,0.4)"><i class="ti ti-brain" aria-hidden="true"></i> IA</button>
+        <button class="cat-filter btn btn-sm" data-cat="Prog" onclick="filterCat(this,'Prog')" style="background:rgba(133,183,235,0.2);color:#B5D4F4;border-color:rgba(133,183,235,0.4)"><i class="ti ti-code" aria-hidden="true"></i> Programación</button>
+        <button class="cat-filter btn btn-sm" data-cat="Games" onclick="filterCat(this,'Games')" style="background:rgba(240,153,123,0.2);color:#F5C4B3;border-color:rgba(240,153,123,0.4)"><i class="ti ti-device-gamepad-2" aria-hidden="true"></i> Videojuegos</button>
+        <button class="cat-filter btn btn-sm" data-cat="Innov" onclick="filterCat(this,'Innov')" style="background:rgba(151,196,89,0.2);color:#C0DD97;border-color:rgba(151,196,89,0.4)"><i class="ti ti-rocket" aria-hidden="true"></i> Innovación</button>
+      </div>
+    </div>
+  </div>
+  <div style="max-width:680px;margin:0 auto;padding:24px">
+    <div id="articlesList"></div>
+  </div>
+</div>
+
+<!-- ARTICLE -->
+<div id="pg-article" class="page">
+  <div style="max-width:680px;margin:0 auto;padding:24px">
+    <button class="btn btn-sm" onclick="goPage('home')" style="margin-bottom:20px"><i class="ti ti-arrow-left" aria-hidden="true"></i> Volver</button>
+    <div id="articleContent"></div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="pg-login" class="page">
+  <div style="max-width:400px;margin:48px auto;padding:0 16px">
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:28px">
+      <div style="text-align:center;margin-bottom:24px">
+        <svg width="40" height="40" viewBox="0 0 34 34" fill="none" style="margin:0 auto 10px;display:block"><rect width="34" height="34" rx="8" fill="#534AB7"/><circle cx="17" cy="17" r="6" fill="none" stroke="#EEEDFE" stroke-width="1.8"/><circle cx="17" cy="8" r="2.2" fill="#AFA9EC"/><circle cx="24.6" cy="21.5" r="2.2" fill="#AFA9EC"/><circle cx="9.4" cy="21.5" r="2.2" fill="#AFA9EC"/><line x1="17" y1="10.2" x2="17" y2="11" stroke="#EEEDFE" stroke-width="1.5"/><line x1="22.7" y1="20.2" x2="22.1" y2="19.5" stroke="#EEEDFE" stroke-width="1.5"/><line x1="11.3" y1="20.2" x2="11.9" y2="19.5" stroke="#EEEDFE" stroke-width="1.5"/><circle cx="17" cy="17" r="2.5" fill="#EEEDFE"/></svg>
+        <h2 style="font-size:18px;font-weight:500" id="loginTitle">Iniciar sesión</h2>
+        <p style="font-size:13px;color:var(--color-text-secondary);margin-top:2px">Tech Collective</p>
+      </div>
+      <div id="loginForm">
+        <input type="text" id="loginUser" placeholder="Nombre de usuario" style="width:100%;margin-bottom:10px">
+        <input type="password" id="loginPass" placeholder="Contraseña" style="width:100%;margin-bottom:16px">
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">Entrar</button>
+        <p style="text-align:center;font-size:13px;color:var(--color-text-secondary);margin-top:14px">¿No tienes cuenta? <a onclick="toggleRegister()" style="color:#7F77DD;cursor:pointer">Regístrate</a></p>
+      </div>
+      <div id="registerForm" style="display:none">
+        <input type="text" id="regUser" placeholder="Nombre de usuario" style="width:100%;margin-bottom:10px">
+        <input type="email" id="regEmail" placeholder="Correo electrónico" style="width:100%;margin-bottom:10px">
+        <input type="password" id="regPass" placeholder="Contraseña" style="width:100%;margin-bottom:16px">
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doRegister()">Crear cuenta</button>
+        <p style="text-align:center;font-size:13px;color:var(--color-text-secondary);margin-top:14px">¿Ya tienes cuenta? <a onclick="toggleRegister()" style="color:#7F77DD;cursor:pointer">Inicia sesión</a></p>
+      </div>
+      <p id="loginMsg" style="color:#A32D2D;font-size:13px;text-align:center;margin-top:10px;display:none"></p>
+    </div>
+  </div>
+</div>
+
+<!-- WRITE -->
+<div id="pg-write" class="page">
+  <div style="max-width:680px;margin:0 auto;padding:24px">
+    <h2 style="font-size:18px;font-weight:500;margin-bottom:20px">Nuevo artículo</h2>
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:24px">
+      <input type="text" id="artTitle" placeholder="Título del artículo" style="width:100%;font-size:18px;margin-bottom:14px;font-weight:500">
+      <select id="artCat" style="width:100%;margin-bottom:14px">
+        <option value="">Selecciona una categoría</option>
+        <option value="IA">Inteligencia Artificial</option>
+        <option value="Prog">Programación</option>
+        <option value="Games">Videojuegos</option>
+        <option value="Innov">Innovación Tecnológica</option>
+      </select>
+      <textarea id="artBody" placeholder="Escribe tu artículo aquí..." style="width:100%;height:200px;margin-bottom:14px;resize:vertical;line-height:1.7;font-size:15px"></textarea>
+      <div id="imgDropZone" style="border:1.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);padding:24px;text-align:center;margin-bottom:16px;cursor:pointer" onclick="document.getElementById('imgInput').click()" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+        <i class="ti ti-photo-up" style="font-size:28px;color:var(--color-text-tertiary)" aria-hidden="true"></i>
+        <p style="font-size:14px;color:var(--color-text-secondary);margin-top:8px">Arrastra una imagen o <span style="color:#7F77DD">haz clic</span> para subir</p>
+        <p style="font-size:12px;color:var(--color-text-tertiary);margin-top:4px">JPG, PNG, GIF — máx. 5 MB</p>
+        <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="handleImgUpload(this)">
+      </div>
+      <div id="imgPreview" style="display:none;margin-bottom:16px">
+        <img id="previewImg" style="width:100%;border-radius:var(--border-radius-md);max-height:280px;object-fit:cover">
+        <button class="btn btn-sm" onclick="removeImg()" style="margin-top:8px;color:#A32D2D;border-color:#F09595"><i class="ti ti-trash" aria-hidden="true"></i> Quitar imagen</button>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn btn-sm" onclick="goPage('home')">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="publishArticle()"><i class="ti ti-send" aria-hidden="true"></i> Publicar</button>
+      </div>
+      <p id="writeMsg" style="font-size:13px;text-align:right;margin-top:8px;display:none"></p>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="pg-profile" class="page">
+  <div style="max-width:680px;margin:0 auto;padding:24px">
+    <div id="profileContent"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="pg-settings" class="page">
+  <div style="max-width:560px;margin:0 auto;padding:24px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+      <button class="btn btn-sm" onclick="goPage('profile')"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+      <h2 style="font-size:18px;font-weight:500">Configuración de cuenta</h2>
+    </div>
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:20px;margin-bottom:16px">
+      <h3 style="font-size:15px;font-weight:500;margin-bottom:14px"><i class="ti ti-user-edit" style="font-size:16px;vertical-align:-2px;margin-right:6px" aria-hidden="true"></i>Editar perfil</h3>
+      <textarea id="editBio" placeholder="Tu biografía..." style="width:100%;height:80px;resize:vertical;font-size:14px;margin-bottom:12px"></textarea>
+      <button class="btn btn-primary btn-sm" onclick="saveBio()"><i class="ti ti-check" aria-hidden="true"></i> Guardar cambios</button>
+      <p id="bioMsg" style="font-size:13px;color:#3B6D11;margin-top:8px;display:none">Biografía actualizada.</p>
+    </div>
+    <div style="background:var(--color-background-primary);border:0.5px solid #F09595;border-radius:var(--border-radius-lg);padding:20px">
+      <h3 style="font-size:15px;font-weight:500;color:#791F1F;margin-bottom:6px"><i class="ti ti-alert-triangle" style="font-size:16px;vertical-align:-2px;margin-right:6px" aria-hidden="true"></i>Zona peligrosa</h3>
+      <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:16px">Una vez que elimines tu cuenta, se borrarán todos tus artículos y no podrás recuperarlos.</p>
+      <button class="btn btn-danger btn-sm" onclick="openDeleteModal()"><i class="ti ti-trash" aria-hidden="true"></i> Eliminar mi cuenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div id="deleteModal" class="modal-overlay">
+  <div class="modal">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="width:48px;height:48px;border-radius:50%;background:#FCEBEB;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <i class="ti ti-trash" style="font-size:22px;color:#A32D2D" aria-hidden="true"></i>
+      </div>
+      <h3 style="font-size:16px;font-weight:500;margin-bottom:6px">¿Eliminar tu cuenta?</h3>
+      <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6">Esta acción es permanente. Se eliminarán tu perfil y todos tus artículos publicados.</p>
+    </div>
+    <div style="background:#FCEBEB;border-radius:var(--border-radius-md);padding:12px 14px;margin-bottom:16px">
+      <p style="font-size:13px;color:#791F1F;margin-bottom:8px">Para confirmar, escribe tu nombre de usuario:</p>
+      <input type="text" id="confirmUsername" placeholder="nombre de usuario" style="width:100%;font-size:14px">
+      <p id="confirmError" style="font-size:12px;color:#A32D2D;margin-top:6px;display:none">El nombre no coincide.</p>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" style="flex:1;justify-content:center" onclick="closeDeleteModal()">Cancelar</button>
+      <button class="btn btn-danger-solid btn-sm" style="flex:1;justify-content:center" onclick="confirmDelete()"><i class="ti ti-trash" aria-hidden="true"></i> Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const DEFAULT_IMGS = {
+  IA: [
+    'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80',
+    'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&q=80',
+    'https://images.unsplash.com/photo-1655720031554-a929595ffad7?w=600&q=80'
+  ],
+  Prog: [
+    'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80',
+    'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80',
+    'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=600&q=80'
+  ],
+  Games: [
+    'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=600&q=80',
+    'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&q=80',
+    'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&q=80'
+  ],
+  Innov: [
+    'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80',
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80',
+    'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=600&q=80'
+  ]
+};
+
+function getDefaultImg(cat, id) {
+  const pool = DEFAULT_IMGS[cat] || DEFAULT_IMGS['Innov'];
+  return pool[id % pool.length];
+}
+
+function resolveImg(a) {
+  return a.img || getDefaultImg(a.cat, a.id);
+}
+
+let users=[
+  {id:1,username:'maria_dev',email:'maria@tech.com',pass:'1234',followers:[2,3],following:[3],bio:'Desarrolladora full-stack apasionada por la IA'},
+  {id:2,username:'carlos_g',email:'carlos@tech.com',pass:'1234',followers:[1],following:[1,3],bio:'Gamer y entusiasta de la innovación tecnológica'},
+  {id:3,username:'ana_tech',email:'ana@tech.com',pass:'1234',followers:[1,2],following:[1],bio:'Investigadora en inteligencia artificial'}
+];
+let articles=[
+  {id:1,authorId:1,title:'GPT-5 y el futuro de los asistentes conversacionales',cat:'IA',body:'La llegada de modelos de lenguaje cada vez más capaces está redefiniendo cómo interactuamos con las máquinas. GPT-5 representa un salto cualitativo en razonamiento, memoria y capacidad multimodal.\n\nLos avances en few-shot learning permiten a estos modelos adaptarse con pocos ejemplos, mientras que las mejoras en razonamiento causal abren nuevas posibilidades para aplicaciones críticas.',img:'',likes:24,date:'2026-06-08'},
+  {id:2,authorId:3,title:'Rust vs Go: ¿Cuál elegir para tu próximo proyecto backend?',cat:'Prog',body:'Dos lenguajes modernos con filosofías diferentes: Rust apuesta por seguridad de memoria en tiempo de compilación, Go por la simplicidad y velocidad de desarrollo.\n\nRust brilla en sistemas embebidos y aplicaciones donde el control del hardware es crítico. Go domina en microservicios y herramientas de infraestructura.',img:'',likes:18,date:'2026-06-07'},
+  {id:3,authorId:2,title:'PS6 y el salto generacional que nos prometieron',cat:'Games',body:'Sony ha presentado oficialmente la PlayStation 6 con especificaciones que prometen trazado de rayos en 8K a 120fps. La revolución está en la IA generativa dentro de los propios juegos: NPCs con comportamiento adaptativo y mundos que se regeneran según el estilo del usuario.',img:'',likes:31,date:'2026-06-06'},
+  {id:4,authorId:1,title:'Computación cuántica accesible: el año en que todo cambió',cat:'Innov',body:'IBM y Google han lanzado plataformas cloud que permiten ejecutar algoritmos cuánticos sin conocimiento profundo de física cuántica. El ecosistema de librerías como Qiskit y Cirq madura rápidamente.',img:'',likes:15,date:'2026-06-05'},
+  {id:5,authorId:3,title:'Fine-tuning con menos datos: técnicas modernas de LoRA y QLoRA',cat:'IA',body:'Adaptar modelos de lenguaje masivos a tareas específicas ya no requiere costosos clusters de GPU. Las técnicas de bajo rango como LoRA permiten entrenar en hardware de consumo con resultados competitivos.',img:'',likes:22,date:'2026-06-04'},
+  {id:6,authorId:2,title:'Indie games 2026: los 10 títulos que deberías conocer',cat:'Games',body:'El ecosistema indie sigue floreciendo. Este año ha traído propuestas que desafían géneros establecidos y apuestan por narrativas íntimas. Desde roguelikes con mecánicas innovadoras hasta aventuras de exploración generadas proceduralmente.',img:'',likes:27,date:'2026-06-03'}
+];
+let currentUser=null,currentFilter='all',uploadedImgData='';
+
+function goPage(pg){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pg-'+pg).classList.add('active');
+  if(pg==='home')renderArticles();
+  if(pg==='profile')renderProfile();
+  if(pg==='settings')renderSettings();
+}
+function updateNav(){
+  if(currentUser){
+    document.getElementById('loginBtn').style.display='none';
+    document.getElementById('writeBtn').style.display='inline-flex';
+    document.getElementById('profileNavBtn').style.display='inline-flex';
+    document.getElementById('navUsername').textContent=currentUser.username;
+  } else {
+    document.getElementById('loginBtn').style.display='inline-flex';
+    document.getElementById('writeBtn').style.display='none';
+    document.getElementById('profileNavBtn').style.display='none';
+  }
+}
+function catLabel(c){const m={IA:'Inteligencia Artificial',Prog:'Programación',Games:'Videojuegos',Innov:'Innovación Tecnológica'};return m[c]||c;}
+function catClass(c){const m={IA:'badge-ai',Prog:'badge-prog',Games:'badge-games',Innov:'badge-innov'};return m[c]||'';}
+function filterCat(btn,cat){currentFilter=cat;renderArticles();}
+
+function renderArticles(){
+  const list=document.getElementById('articlesList');
+  let filtered=currentFilter==='all'?articles:articles.filter(a=>a.cat===currentFilter);
+  if(!filtered.length){list.innerHTML='<p style="color:var(--color-text-secondary);text-align:center;padding:40px 0">No hay artículos en esta categoría aún.</p>';return;}
+  list.innerHTML=filtered.map(a=>{
+    const author=users.find(u=>u.id===a.authorId);if(!author)return'';
+    const initials=author.username.slice(0,2).toUpperCase();
+    const cover=resolveImg(a);
+    return`<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:16px;overflow:hidden;cursor:pointer" onclick="openArticle(${a.id})">
+      <img src="${cover}" style="width:100%;height:190px;object-fit:cover;display:block" onerror="this.style.background='var(--color-background-secondary)';this.style.height='8px'">
+      <div style="padding:16px 20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span class="badge ${catClass(a.cat)}">${catLabel(a.cat)}</span>
+          <span style="font-size:12px;color:var(--color-text-tertiary)">${a.date}</span>
+        </div>
+        <h3 style="font-size:16px;font-weight:500;margin-bottom:8px;line-height:1.4">${a.title}</h3>
+        <p style="font-size:14px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:14px">${a.body.slice(0,120)}...</p>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3C3489">${initials}</div>
+            <span style="font-size:13px;color:var(--color-text-secondary)">${author.username}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="font-size:13px;color:var(--color-text-tertiary)"><i class="ti ti-heart" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> ${a.likes}</span>
+            <span style="font-size:13px;color:#7F77DD">Leer más →</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openArticle(id){
+  const a=articles.find(x=>x.id===id);
+  const author=users.find(u=>u.id===a.authorId);if(!author){goPage('home');return;}
+  const initials=author.username.slice(0,2).toUpperCase();
+  const isLiked=currentUser&&a.likedBy&&a.likedBy.includes(currentUser.id);
+  const isFollowing=currentUser&&currentUser.following&&currentUser.following.includes(author.id);
+  const cover=resolveImg(a);
+  const paras=a.body.split('\n').filter(p=>p.trim()).map(p=>`<p style="font-size:15px;line-height:1.8;margin-bottom:14px">${p}</p>`).join('');
+  document.getElementById('articleContent').innerHTML=`
+    <span class="badge ${catClass(a.cat)}" style="margin-bottom:14px;display:inline-block">${catLabel(a.cat)}</span>
+    <h1 style="font-size:22px;font-weight:500;margin-bottom:16px;line-height:1.35">${a.title}</h1>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:0.5px solid var(--color-border-tertiary)">
+      <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="viewUserProfile(${author.id})">
+        <div style="width:36px;height:36px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#3C3489">${initials}</div>
+        <div>
+          <p style="font-size:14px;font-weight:500">${author.username}</p>
+          <p style="font-size:12px;color:var(--color-text-secondary)">${author.followers.length} seguidores · ${a.date}</p>
+        </div>
+      </div>
+      ${currentUser&&currentUser.id!==author.id?`<button class="btn btn-sm ${isFollowing?'':'btn-primary'}" onclick="toggleFollow(${author.id},this)">${isFollowing?'Siguiendo':'Seguir'}</button>`:''}
+    </div>
+    <img src="${cover}" style="width:100%;border-radius:var(--border-radius-md);margin-bottom:20px;max-height:340px;object-fit:cover" onerror="this.style.display='none'">
+    <div style="margin-bottom:24px">${paras}</div>
+    <div style="display:flex;align-items:center;gap:12px;padding-top:16px;border-top:0.5px solid var(--color-border-tertiary)">
+      <button class="btn btn-sm" id="likeBtn" onclick="toggleLike(${a.id},this)" style="${isLiked?'color:#A32D2D;border-color:#F09595':''}">
+        <i class="ti ti-heart" aria-hidden="true"></i> <span id="likeCount">${a.likes}</span> Me gusta
+      </button>
+      ${currentUser?`<button class="btn btn-sm btn-primary" onclick="goPage('write')"><i class="ti ti-edit" aria-hidden="true"></i> Escribir artículo</button>`:''}
+    </div>`;
+  goPage('article');
+}
+
+function toggleLike(id,btn){
+  if(!currentUser){alert('Inicia sesión para dar me gusta');return;}
+  const a=articles.find(x=>x.id===id);if(!a.likedBy)a.likedBy=[];
+  const idx=a.likedBy.indexOf(currentUser.id);
+  if(idx>-1){a.likedBy.splice(idx,1);a.likes--;btn.style.color='';btn.style.borderColor='';}
+  else{a.likedBy.push(currentUser.id);a.likes++;btn.style.color='#A32D2D';btn.style.borderColor='#F09595';}
+  document.getElementById('likeCount').textContent=a.likes;
+}
+function toggleFollow(userId,btn){
+  if(!currentUser)return;
+  const target=users.find(u=>u.id===userId);
+  const fidx=currentUser.following.indexOf(userId);
+  if(fidx>-1){currentUser.following.splice(fidx,1);target.followers=target.followers.filter(id=>id!==currentUser.id);btn.textContent='Seguir';btn.classList.add('btn-primary');}
+  else{currentUser.following.push(userId);target.followers.push(currentUser.id);btn.textContent='Siguiendo';btn.classList.remove('btn-primary');}
+}
+function viewUserProfile(uid){
+  const u=users.find(x=>x.id===uid);if(!u){goPage('home');return;}
+  const userArts=articles.filter(a=>a.authorId===uid);
+  const isFollowing=currentUser&&currentUser.following&&currentUser.following.includes(uid);
+  const isOwnProfile=currentUser&&currentUser.id===uid;
+  const initials=u.username.slice(0,2).toUpperCase();
+  document.getElementById('profileContent').innerHTML=`
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:24px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+        <div style="width:60px;height:60px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:500;color:#3C3489">${initials}</div>
+        <div style="flex:1">
+          <h2 style="font-size:18px;font-weight:500">${u.username}</h2>
+          <p style="font-size:13px;color:var(--color-text-secondary);margin-top:2px">${u.bio}</p>
+        </div>
+        ${isOwnProfile?`<button class="btn btn-sm" onclick="goPage('settings')"><i class="ti ti-settings" aria-hidden="true"></i> Ajustes</button>`:''}
+        ${!isOwnProfile&&currentUser?`<button class="btn btn-sm ${isFollowing?'':'btn-primary'}" onclick="toggleFollow(${uid},this);renderProfile()">${isFollowing?'Siguiendo':'Seguir'}</button>`:''}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;text-align:center">
+          <p style="font-size:20px;font-weight:500">${u.followers.length}</p>
+          <p style="font-size:12px;color:var(--color-text-secondary)">Seguidores</p>
+        </div>
+        <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;text-align:center">
+          <p style="font-size:20px;font-weight:500">${u.following.length}</p>
+          <p style="font-size:12px;color:var(--color-text-secondary)">Siguiendo</p>
+        </div>
+        <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;text-align:center">
+          <p style="font-size:20px;font-weight:500">${userArts.length}</p>
+          <p style="font-size:12px;color:var(--color-text-secondary)">Artículos</p>
+        </div>
+      </div>
+    </div>
+    <h3 style="font-size:15px;font-weight:500;margin-bottom:12px">Artículos publicados</h3>
+    ${userArts.length?userArts.map(a=>{
+      const cover=resolveImg(a);
+      return`<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);margin-bottom:10px;overflow:hidden;cursor:pointer" onclick="openArticle(${a.id})">
+        <img src="${cover}" style="width:100%;height:100px;object-fit:cover;display:block" onerror="this.style.display='none'">
+        <div style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+          <div style="flex:1;margin-right:12px">
+            <span class="badge ${catClass(a.cat)}" style="margin-bottom:5px">${catLabel(a.cat)}</span>
+            <p style="font-size:14px;font-weight:500">${a.title}</p>
+          </div>
+          <i class="ti ti-chevron-right" style="color:var(--color-text-tertiary)" aria-hidden="true"></i>
+        </div>
+      </div>`;
+    }).join(''):'<p style="color:var(--color-text-secondary);font-size:14px">Sin artículos aún.</p>'}`;
+  goPage('profile');
+}
+function renderProfile(){if(!currentUser){goPage('login');return;}viewUserProfile(currentUser.id);}
+function renderSettings(){if(!currentUser)return;document.getElementById('editBio').value=currentUser.bio||'';document.getElementById('bioMsg').style.display='none';}
+function saveBio(){
+  if(!currentUser)return;
+  currentUser.bio=document.getElementById('editBio').value.trim();
+  const u=users.find(x=>x.id===currentUser.id);if(u)u.bio=currentUser.bio;
+  const msg=document.getElementById('bioMsg');msg.style.display='block';
+  setTimeout(()=>msg.style.display='none',2000);
+}
+function openDeleteModal(){document.getElementById('confirmUsername').value='';document.getElementById('confirmError').style.display='none';document.getElementById('deleteModal').classList.add('open');}
+function closeDeleteModal(){document.getElementById('deleteModal').classList.remove('open');}
+function confirmDelete(){
+  const typed=document.getElementById('confirmUsername').value.trim();
+  const err=document.getElementById('confirmError');
+  if(typed!==currentUser.username){err.style.display='block';return;}
+  const uid=currentUser.id;
+  articles=articles.filter(a=>a.authorId!==uid);
+  users=users.filter(u=>u.id!==uid);
+  users.forEach(u=>{u.followers=u.followers.filter(id=>id!==uid);u.following=u.following.filter(id=>id!==uid);});
+  currentUser=null;updateNav();closeDeleteModal();goPage('home');
+}
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const found=users.find(x=>x.username===u&&x.pass===p);
+  const msg=document.getElementById('loginMsg');
+  if(found){currentUser=found;updateNav();goPage('home');}
+  else{msg.textContent='Usuario o contraseña incorrectos';msg.style.display='block';}
+}
+function doRegister(){
+  const u=document.getElementById('regUser').value.trim();
+  const e=document.getElementById('regEmail').value.trim();
+  const p=document.getElementById('regPass').value;
+  const msg=document.getElementById('loginMsg');
+  if(!u||!e||!p){msg.textContent='Completa todos los campos';msg.style.display='block';return;}
+  if(users.find(x=>x.username===u)){msg.textContent='El usuario ya existe';msg.style.display='block';return;}
+  const nu={id:Date.now(),username:u,email:e,pass:p,followers:[],following:[],bio:'Nuevo escritor en Tech Collective'};
+  users.push(nu);currentUser=nu;updateNav();goPage('home');
+}
+function toggleRegister(){
+  const lf=document.getElementById('loginForm'),rf=document.getElementById('registerForm'),t=document.getElementById('loginTitle'),msg=document.getElementById('loginMsg');
+  msg.style.display='none';
+  if(lf.style.display==='none'){lf.style.display='block';rf.style.display='none';t.textContent='Iniciar sesión';}
+  else{lf.style.display='none';rf.style.display='block';t.textContent='Crear cuenta';}
+}
+function handleImgUpload(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{uploadedImgData=e.target.result;document.getElementById('previewImg').src=uploadedImgData;document.getElementById('imgPreview').style.display='block';document.getElementById('imgDropZone').style.display='none';};
+  reader.readAsDataURL(file);
+}
+function handleDrop(e){
+  e.preventDefault();const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/')){const input=document.getElementById('imgInput');const dt=new DataTransfer();dt.items.add(file);input.files=dt.files;handleImgUpload(input);}
+}
+function removeImg(){uploadedImgData='';document.getElementById('imgPreview').style.display='none';document.getElementById('imgDropZone').style.display='block';document.getElementById('imgInput').value='';}
+function publishArticle(){
+  const title=document.getElementById('artTitle').value.trim();
+  const cat=document.getElementById('artCat').value;
+  const body=document.getElementById('artBody').value.trim();
+  const msg=document.getElementById('writeMsg');
+  if(!title||!cat||!body){msg.textContent='Completa título, categoría y contenido';msg.style.display='block';msg.style.color='#A32D2D';return;}
+  articles.unshift({id:Date.now(),authorId:currentUser.id,title,cat,body,img:uploadedImgData,likes:0,date:new Date().toISOString().slice(0,10),likedBy:[]});
+  document.getElementById('artTitle').value='';document.getElementById('artCat').value='';document.getElementById('artBody').value='';removeImg();
+  msg.textContent='¡Artículo publicado!';msg.style.display='block';msg.style.color='#3B6D11';
+  setTimeout(()=>goPage('home'),1200);
+}
+renderArticles();
+</script>
