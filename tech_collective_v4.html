@@ -1,4 +1,3 @@
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font-sans);color:var(--color-text-primary);background:var(--color-background-tertiary)}
@@ -241,6 +240,19 @@ let articles=[
 ];
 let currentUser=null,currentFilter='all',uploadedImgData='';
 
+function saveState(){
+  localStorage.setItem('tc_users',JSON.stringify(users));
+  localStorage.setItem('tc_articles',JSON.stringify(articles));
+  localStorage.setItem('tc_currentUserId',currentUser?currentUser.id:'');
+}
+function loadState(){
+  try{const storedUsers=localStorage.getItem('tc_users');if(storedUsers)users=JSON.parse(storedUsers);}catch(e){}
+  try{const storedArticles=localStorage.getItem('tc_articles');if(storedArticles)articles=JSON.parse(storedArticles);}catch(e){}
+  const currentUserId=localStorage.getItem('tc_currentUserId');
+  currentUser=currentUserId?users.find(u=>String(u.id)===String(currentUserId)):null;
+  updateNav();
+}
+
 function goPage(pg){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('pg-'+pg).classList.add('active');
@@ -323,6 +335,7 @@ function openArticle(id){
       <button class="btn btn-sm" id="likeBtn" onclick="toggleLike(${a.id},this)" style="${isLiked?'color:#A32D2D;border-color:#F09595':''}">
         <i class="ti ti-heart" aria-hidden="true"></i> <span id="likeCount">${a.likes}</span> Me gusta
       </button>
+      ${currentUser&&currentUser.id===author.id?`<button class="btn btn-sm btn-danger-solid" onclick="deleteArticle(${a.id})"><i class="ti ti-trash" aria-hidden="true"></i> Eliminar</button>`:''}
       ${currentUser?`<button class="btn btn-sm btn-primary" onclick="goPage('write')"><i class="ti ti-edit" aria-hidden="true"></i> Escribir artículo</button>`:''}
     </div>`;
   goPage('article');
@@ -334,6 +347,7 @@ function toggleLike(id,btn){
   const idx=a.likedBy.indexOf(currentUser.id);
   if(idx>-1){a.likedBy.splice(idx,1);a.likes--;btn.style.color='';btn.style.borderColor='';}
   else{a.likedBy.push(currentUser.id);a.likes++;btn.style.color='#A32D2D';btn.style.borderColor='#F09595';}
+  saveState();
   document.getElementById('likeCount').textContent=a.likes;
 }
 function toggleFollow(userId,btn){
@@ -342,6 +356,17 @@ function toggleFollow(userId,btn){
   const fidx=currentUser.following.indexOf(userId);
   if(fidx>-1){currentUser.following.splice(fidx,1);target.followers=target.followers.filter(id=>id!==currentUser.id);btn.textContent='Seguir';btn.classList.add('btn-primary');}
   else{currentUser.following.push(userId);target.followers.push(currentUser.id);btn.textContent='Siguiendo';btn.classList.remove('btn-primary');}
+  saveState();
+}
+function deleteArticle(id){
+  const article=articles.find(a=>a.id===id);
+  if(!article||!currentUser||article.authorId!==currentUser.id) return;
+  if(!confirm('¿Eliminar este artículo?')) return;
+  articles=articles.filter(a=>a.id!==id);
+  saveState();
+  renderArticles();
+  if(document.getElementById('pg-article').classList.contains('active')) goPage('home');
+  if(document.getElementById('pg-profile').classList.contains('active')) renderProfile();
 }
 function viewUserProfile(uid){
   const u=users.find(x=>x.id===uid);if(!u){goPage('home');return;}
@@ -385,7 +410,10 @@ function viewUserProfile(uid){
             <span class="badge ${catClass(a.cat)}" style="margin-bottom:5px">${catLabel(a.cat)}</span>
             <p style="font-size:14px;font-weight:500">${a.title}</p>
           </div>
-          <i class="ti ti-chevron-right" style="color:var(--color-text-tertiary)" aria-hidden="true"></i>
+          <div style="display:flex;align-items:center;gap:6px">
+            ${isOwnProfile?`<button class="btn btn-sm btn-danger-solid" onclick="event.stopPropagation();deleteArticle(${a.id})"><i class="ti ti-trash" aria-hidden="true"></i></button>`:''}
+            <i class="ti ti-chevron-right" style="color:var(--color-text-tertiary)" aria-hidden="true"></i>
+          </div>
         </div>
       </div>`;
     }).join(''):'<p style="color:var(--color-text-secondary);font-size:14px">Sin artículos aún.</p>'}`;
@@ -397,6 +425,7 @@ function saveBio(){
   if(!currentUser)return;
   currentUser.bio=document.getElementById('editBio').value.trim();
   const u=users.find(x=>x.id===currentUser.id);if(u)u.bio=currentUser.bio;
+  saveState();
   const msg=document.getElementById('bioMsg');msg.style.display='block';
   setTimeout(()=>msg.style.display='none',2000);
 }
@@ -410,14 +439,14 @@ function confirmDelete(){
   articles=articles.filter(a=>a.authorId!==uid);
   users=users.filter(u=>u.id!==uid);
   users.forEach(u=>{u.followers=u.followers.filter(id=>id!==uid);u.following=u.following.filter(id=>id!==uid);});
-  currentUser=null;updateNav();closeDeleteModal();goPage('home');
+  currentUser=null;saveState();updateNav();closeDeleteModal();goPage('home');
 }
 function doLogin(){
   const u=document.getElementById('loginUser').value.trim();
   const p=document.getElementById('loginPass').value;
   const found=users.find(x=>x.username===u&&x.pass===p);
   const msg=document.getElementById('loginMsg');
-  if(found){currentUser=found;updateNav();goPage('home');}
+  if(found){currentUser=found;saveState();updateNav();goPage('home');}
   else{msg.textContent='Usuario o contraseña incorrectos';msg.style.display='block';}
 }
 function doRegister(){
@@ -428,7 +457,7 @@ function doRegister(){
   if(!u||!e||!p){msg.textContent='Completa todos los campos';msg.style.display='block';return;}
   if(users.find(x=>x.username===u)){msg.textContent='El usuario ya existe';msg.style.display='block';return;}
   const nu={id:Date.now(),username:u,email:e,pass:p,followers:[],following:[],bio:'Nuevo escritor en Tech Collective'};
-  users.push(nu);currentUser=nu;updateNav();goPage('home');
+  users.push(nu);currentUser=nu;saveState();updateNav();goPage('home');
 }
 function toggleRegister(){
   const lf=document.getElementById('loginForm'),rf=document.getElementById('registerForm'),t=document.getElementById('loginTitle'),msg=document.getElementById('loginMsg');
@@ -454,9 +483,12 @@ function publishArticle(){
   const msg=document.getElementById('writeMsg');
   if(!title||!cat||!body){msg.textContent='Completa título, categoría y contenido';msg.style.display='block';msg.style.color='#A32D2D';return;}
   articles.unshift({id:Date.now(),authorId:currentUser.id,title,cat,body,img:uploadedImgData,likes:0,date:new Date().toISOString().slice(0,10),likedBy:[]});
+  saveState();
   document.getElementById('artTitle').value='';document.getElementById('artCat').value='';document.getElementById('artBody').value='';removeImg();
   msg.textContent='¡Artículo publicado!';msg.style.display='block';msg.style.color='#3B6D11';
   setTimeout(()=>goPage('home'),1200);
 }
+loadState();
 renderArticles();
 </script>
+
