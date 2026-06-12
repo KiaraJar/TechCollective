@@ -121,6 +121,10 @@ input,textarea,select{font-family:var(--font-sans)}
         <option value="Innov">Innovación Tecnológica</option>
       </select>
       <textarea id="artBody" placeholder="Escribe tu artículo aquí..." style="width:100%;height:200px;margin-bottom:14px;resize:vertical;line-height:1.7;font-size:15px"></textarea>
+      <div id="guestAuthorWrap" style="display:none;margin-bottom:14px">
+        <input type="text" id="guestAuthorName" placeholder="Nombre del autor" style="width:100%;margin-bottom:10px">
+        <p style="font-size:12px;color:var(--color-text-secondary);margin-top:-8px">Publica sin registrarte, solo con tu nombre.</p>
+      </div>
       <div id="imgDropZone" style="border:1.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);padding:24px;text-align:center;margin-bottom:16px;cursor:pointer" onclick="document.getElementById('imgInput').click()" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
         <i class="ti ti-photo-up" style="font-size:28px;color:var(--color-text-tertiary)" aria-hidden="true"></i>
         <p style="font-size:14px;color:var(--color-text-secondary);margin-top:8px">Arrastra una imagen o <span style="color:#7F77DD">haz clic</span> para subir</p>
@@ -163,29 +167,7 @@ input,textarea,select{font-family:var(--font-sans)}
     <div style="background:var(--color-background-primary);border:0.5px solid #F09595;border-radius:var(--border-radius-lg);padding:20px">
       <h3 style="font-size:15px;font-weight:500;color:#791F1F;margin-bottom:6px"><i class="ti ti-alert-triangle" style="font-size:16px;vertical-align:-2px;margin-right:6px" aria-hidden="true"></i>Zona peligrosa</h3>
       <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:16px">Una vez que elimines tu cuenta, se borrarán todos tus artículos y no podrás recuperarlos.</p>
-      <button class="btn btn-danger btn-sm" onclick="openDeleteModal()"><i class="ti ti-trash" aria-hidden="true"></i> Eliminar mi cuenta</button>
-    </div>
-  </div>
-</div>
-
-<!-- DELETE MODAL -->
-<div id="deleteModal" class="modal-overlay">
-  <div class="modal">
-    <div style="text-align:center;margin-bottom:16px">
-      <div style="width:48px;height:48px;border-radius:50%;background:#FCEBEB;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-        <i class="ti ti-trash" style="font-size:22px;color:#A32D2D" aria-hidden="true"></i>
-      </div>
-      <h3 style="font-size:16px;font-weight:500;margin-bottom:6px">¿Eliminar tu cuenta?</h3>
-      <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6">Esta acción es permanente. Se eliminarán tu perfil y todos tus artículos publicados.</p>
-    </div>
-    <div style="background:#FCEBEB;border-radius:var(--border-radius-md);padding:12px 14px;margin-bottom:16px">
-      <p style="font-size:13px;color:#791F1F;margin-bottom:8px">Para confirmar, escribe tu nombre de usuario:</p>
-      <input type="text" id="confirmUsername" placeholder="nombre de usuario" style="width:100%;font-size:14px">
-      <p id="confirmError" style="font-size:12px;color:#A32D2D;margin-top:6px;display:none">El nombre no coincide.</p>
-    </div>
-    <div style="display:flex;gap:10px">
-      <button class="btn" style="flex:1;justify-content:center" onclick="closeDeleteModal()">Cancelar</button>
-      <button class="btn btn-danger-solid btn-sm" style="flex:1;justify-content:center" onclick="confirmDelete()"><i class="ti ti-trash" aria-hidden="true"></i> Sí, eliminar</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteAccount()"><i class="ti ti-trash" aria-hidden="true"></i> Eliminar mi cuenta</button>
     </div>
   </div>
 </div>
@@ -221,70 +203,96 @@ function getDefaultImg(cat, id) {
   return pool[id % pool.length];
 }
 
-function resolveImg(a) {
-  return a.img || getDefaultImg(a.cat, a.id);
+function resolveImg(article) {
+  return article.img || getDefaultImg(article.cat, article.id);
 }
 
-let users=[
-  {id:1,username:'maria_dev',email:'maria@tech.com',pass:'1234',followers:[2,3],following:[3],bio:'Desarrolladora full-stack apasionada por la IA'},
-  {id:2,username:'carlos_g',email:'carlos@tech.com',pass:'1234',followers:[1],following:[1,3],bio:'Gamer y entusiasta de la innovación tecnológica'},
-  {id:3,username:'ana_tech',email:'ana@tech.com',pass:'1234',followers:[1,2],following:[1],bio:'Investigadora en inteligencia artificial'}
-];
-let articles=[
-  {id:1,authorId:1,title:'GPT-5 y el futuro de los asistentes conversacionales',cat:'IA',body:'La llegada de modelos de lenguaje cada vez más capaces está redefiniendo cómo interactuamos con las máquinas. GPT-5 representa un salto cualitativo en razonamiento, memoria y capacidad multimodal.\n\nLos avances en few-shot learning permiten a estos modelos adaptarse con pocos ejemplos, mientras que las mejoras en razonamiento causal abren nuevas posibilidades para aplicaciones críticas.',img:'',likes:24,date:'2026-06-08'},
-  {id:2,authorId:3,title:'Rust vs Go: ¿Cuál elegir para tu próximo proyecto backend?',cat:'Prog',body:'Dos lenguajes modernos con filosofías diferentes: Rust apuesta por seguridad de memoria en tiempo de compilación, Go por la simplicidad y velocidad de desarrollo.\n\nRust brilla en sistemas embebidos y aplicaciones donde el control del hardware es crítico. Go domina en microservicios y herramientas de infraestructura.',img:'',likes:18,date:'2026-06-07'},
-  {id:3,authorId:2,title:'PS6 y el salto generacional que nos prometieron',cat:'Games',body:'Sony ha presentado oficialmente la PlayStation 6 con especificaciones que prometen trazado de rayos en 8K a 120fps. La revolución está en la IA generativa dentro de los propios juegos: NPCs con comportamiento adaptativo y mundos que se regeneran según el estilo del usuario.',img:'',likes:31,date:'2026-06-06'},
-  {id:4,authorId:1,title:'Computación cuántica accesible: el año en que todo cambió',cat:'Innov',body:'IBM y Google han lanzado plataformas cloud que permiten ejecutar algoritmos cuánticos sin conocimiento profundo de física cuántica. El ecosistema de librerías como Qiskit y Cirq madura rápidamente.',img:'',likes:15,date:'2026-06-05'},
-  {id:5,authorId:3,title:'Fine-tuning con menos datos: técnicas modernas de LoRA y QLoRA',cat:'IA',body:'Adaptar modelos de lenguaje masivos a tareas específicas ya no requiere costosos clusters de GPU. Las técnicas de bajo rango como LoRA permiten entrenar en hardware de consumo con resultados competitivos.',img:'',likes:22,date:'2026-06-04'},
-  {id:6,authorId:2,title:'Indie games 2026: los 10 títulos que deberías conocer',cat:'Games',body:'El ecosistema indie sigue floreciendo. Este año ha traído propuestas que desafían géneros establecidos y apuestan por narrativas íntimas. Desde roguelikes con mecánicas innovadoras hasta aventuras de exploración generadas proceduralmente.',img:'',likes:27,date:'2026-06-03'}
-];
-let currentUser=null,currentFilter='all',uploadedImgData='';
+let users = [];
+let articles = [];
+let currentUser = null;
+let currentFilter = 'all';
+let uploadedImgData = '';
 
-function saveState(){
-  localStorage.setItem('tc_users',JSON.stringify(users));
-  localStorage.setItem('tc_articles',JSON.stringify(articles));
-  localStorage.setItem('tc_currentUserId',currentUser?currentUser.id:'');
-}
-function loadState(){
-  try{const storedUsers=localStorage.getItem('tc_users');if(storedUsers)users=JSON.parse(storedUsers);}catch(e){}
-  try{const storedArticles=localStorage.getItem('tc_articles');if(storedArticles)articles=JSON.parse(storedArticles);}catch(e){}
-  const currentUserId=localStorage.getItem('tc_currentUserId');
-  currentUser=currentUserId?users.find(u=>String(u.id)===String(currentUserId)):null;
-  updateNav();
+function createDefaultState() {
+  return {
+    users: [
+      { id: 1, username: 'maria_dev', email: 'maria@tech.com', pass: '1234', followers: [2, 3], following: [3], bio: 'Desarrolladora full-stack apasionada por la IA' },
+      { id: 2, username: 'carlos_g', email: 'carlos@tech.com', pass: '1234', followers: [1], following: [1, 3], bio: 'Gamer y entusiasta de la innovación tecnológica' },
+      { id: 3, username: 'ana_tech', email: 'ana@tech.com', pass: '1234', followers: [1, 2], following: [1], bio: 'Investigadora en inteligencia artificial' }
+    ],
+    articles: [
+      { id: 1, authorId: 1, title: 'GPT-5 y el futuro de los asistentes conversacionales', cat: 'IA', body: 'La llegada de modelos de lenguaje cada vez más capaces está redefiniendo cómo interactuamos con las máquinas. GPT-5 representa un salto cualitativo en razonamiento, memoria y capacidad multimodal.\n\nLos avances en few-shot learning permiten a estos modelos adaptarse con pocos ejemplos, mientras que las mejoras en razonamiento causal abren nuevas posibilidades para aplicaciones críticas.', img: '', likes: 24, date: '2026-06-08', likedBy: [] },
+      { id: 2, authorId: 3, title: 'Rust vs Go: ¿Cuál elegir para tu próximo proyecto backend?', cat: 'Prog', body: 'Dos lenguajes modernos con filosofías diferentes: Rust apuesta por seguridad de memoria en tiempo de compilación, Go por la simplicidad y velocidad de desarrollo.\n\nRust brilla en sistemas embebidos y aplicaciones donde el control del hardware es crítico. Go domina en microservicios y herramientas de infraestructura.', img: '', likes: 18, date: '2026-06-07', likedBy: [] },
+      { id: 3, authorId: 2, title: 'PS6 y el salto generacional que nos prometieron', cat: 'Games', body: 'Sony ha presentado oficialmente la PlayStation 6 con especificaciones que prometen trazado de rayos en 8K a 120fps. La revolución está en la IA generativa dentro de los propios juegos: NPCs con comportamiento adaptativo y mundos que se regeneran según el estilo del usuario.', img: '', likes: 31, date: '2026-06-06', likedBy: [] },
+      { id: 4, authorId: 1, title: 'Computación cuántica accesible: el año en que todo cambió', cat: 'Innov', body: 'IBM y Google han lanzado plataformas cloud que permiten ejecutar algoritmos cuánticos sin conocimiento profundo de física cuántica. El ecosistema de librerías como Qiskit y Cirq madura rápidamente.', img: '', likes: 15, date: '2026-06-05', likedBy: [] },
+      { id: 5, authorId: 3, title: 'Fine-tuning con menos datos: técnicas modernas de LoRA y QLoRA', cat: 'IA', body: 'Adaptar modelos de lenguaje masivos a tareas específicas ya no requiere costosos clusters de GPU. Las técnicas de bajo rango como LoRA permiten entrenar en hardware de consumo con resultados competitivos.', img: '', likes: 22, date: '2026-06-04', likedBy: [] },
+      { id: 6, authorId: 2, title: 'Indie games 2026: los 10 títulos que deberías conocer', cat: 'Games', body: 'El ecosistema indie sigue floreciendo. Este año ha traído propuestas que desafían géneros establecidos y apuestan por narrativas íntimas. Desde roguelikes con mecánicas innovadoras hasta aventuras de exploración generadas proceduralmente.', img: '', likes: 27, date: '2026-06-03', likedBy: [] }
+    ]
+  };
 }
 
-function goPage(pg){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('pg-'+pg).classList.add('active');
-  if(pg==='home')renderArticles();
-  if(pg==='profile')renderProfile();
-  if(pg==='settings')renderSettings();
+function saveState() {
+  const state = { users, articles, currentUserId: currentUser ? currentUser.id : null };
+  localStorage.setItem('techCollectiveState', JSON.stringify(state));
 }
-function updateNav(){
-  if(currentUser){
-    document.getElementById('loginBtn').style.display='none';
-    document.getElementById('writeBtn').style.display='inline-flex';
-    document.getElementById('profileNavBtn').style.display='inline-flex';
-    document.getElementById('navUsername').textContent=currentUser.username;
+
+function loadState() {
+  const raw = localStorage.getItem('techCollectiveState');
+  let state;
+  if (!raw) {
+    state = createDefaultState();
   } else {
-    document.getElementById('loginBtn').style.display='inline-flex';
-    document.getElementById('writeBtn').style.display='none';
-    document.getElementById('profileNavBtn').style.display='none';
+    try { state = JSON.parse(raw); } catch (error) { state = createDefaultState(); }
+  }
+  users = state.users || [];
+  articles = state.articles || [];
+  currentUser = users.find(u => u.id === state.currentUserId) || null;
+}
+
+function goPage(pg) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('pg-' + pg).classList.add('active');
+  if (pg === 'home') renderArticles();
+  if (pg === 'write') renderWritePage();
+  if (pg === 'profile') renderProfile();
+  if (pg === 'settings') renderSettings();
+}
+
+function updateNav() {
+  if (currentUser) {
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('writeBtn').style.display = 'inline-flex';
+    document.getElementById('profileNavBtn').style.display = 'inline-flex';
+    document.getElementById('navUsername').textContent = currentUser.username;
+  } else {
+    document.getElementById('loginBtn').style.display = 'inline-flex';
+    document.getElementById('writeBtn').style.display = 'inline-flex';
+    document.getElementById('profileNavBtn').style.display = 'none';
   }
 }
-function catLabel(c){const m={IA:'Inteligencia Artificial',Prog:'Programación',Games:'Videojuegos',Innov:'Innovación Tecnológica'};return m[c]||c;}
-function catClass(c){const m={IA:'badge-ai',Prog:'badge-prog',Games:'badge-games',Innov:'badge-innov'};return m[c]||'';}
-function filterCat(btn,cat){currentFilter=cat;renderArticles();}
 
-function renderArticles(){
-  const list=document.getElementById('articlesList');
-  let filtered=currentFilter==='all'?articles:articles.filter(a=>a.cat===currentFilter);
-  if(!filtered.length){list.innerHTML='<p style="color:var(--color-text-secondary);text-align:center;padding:40px 0">No hay artículos en esta categoría aún.</p>';return;}
-  list.innerHTML=filtered.map(a=>{
-    const author=users.find(u=>u.id===a.authorId);if(!author)return'';
-    const initials=author.username.slice(0,2).toUpperCase();
-    const cover=resolveImg(a);
-    return`<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:16px;overflow:hidden;cursor:pointer" onclick="openArticle(${a.id})">
+function renderWritePage() {
+  const guestWrap = document.getElementById('guestAuthorWrap');
+  if (!guestWrap) return;
+  guestWrap.style.display = currentUser ? 'none' : 'block';
+}
+
+function catLabel(c) { const m = { IA: 'Inteligencia Artificial', Prog: 'Programación', Games: 'Videojuegos', Innov: 'Innovación Tecnológica' }; return m[c] || c; }
+function catClass(c) { const m = { IA: 'badge-ai', Prog: 'badge-prog', Games: 'badge-games', Innov: 'badge-innov' }; return m[c] || ''; }
+function filterCat(btn, cat) { currentFilter = cat; renderArticles(); }
+
+function renderArticles() {
+  const list = document.getElementById('articlesList');
+  const filtered = currentFilter === 'all' ? articles : articles.filter(a => a.cat === currentFilter);
+  if (!filtered.length) {
+    list.innerHTML = '<p style="color:var(--color-text-secondary);text-align:center;padding:40px 0">No hay artículos en esta categoría aún.</p>';
+    return;
+  }
+  list.innerHTML = filtered.map(a => {
+    const author = users.find(u => u.id === a.authorId) || { username: a.authorName || 'Invitado', followers: [], following: [] };
+    const initials = author.username.slice(0, 2).toUpperCase();
+    const cover = resolveImg(a);
+    return `<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:16px;overflow:hidden;cursor:pointer" onclick="openArticle(${a.id})">
       <img src="${cover}" style="width:100%;height:190px;object-fit:cover;display:block" onerror="this.style.background='var(--color-background-secondary)';this.style.height='8px'">
       <div style="padding:16px 20px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -292,7 +300,7 @@ function renderArticles(){
           <span style="font-size:12px;color:var(--color-text-tertiary)">${a.date}</span>
         </div>
         <h3 style="font-size:16px;font-weight:500;margin-bottom:8px;line-height:1.4">${a.title}</h3>
-        <p style="font-size:14px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:14px">${a.body.slice(0,120)}...</p>
+        <p style="font-size:14px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:14px">${a.body.slice(0, 120)}...</p>
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div style="display:flex;align-items:center;gap:8px">
             <div style="width:28px;height:28px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3C3489">${initials}</div>
@@ -308,73 +316,123 @@ function renderArticles(){
   }).join('');
 }
 
-function openArticle(id){
-  const a=articles.find(x=>x.id===id);
-  const author=users.find(u=>u.id===a.authorId);if(!author){goPage('home');return;}
-  const initials=author.username.slice(0,2).toUpperCase();
-  const isLiked=currentUser&&a.likedBy&&a.likedBy.includes(currentUser.id);
-  const isFollowing=currentUser&&currentUser.following&&currentUser.following.includes(author.id);
-  const cover=resolveImg(a);
-  const paras=a.body.split('\n').filter(p=>p.trim()).map(p=>`<p style="font-size:15px;line-height:1.8;margin-bottom:14px">${p}</p>`).join('');
-  document.getElementById('articleContent').innerHTML=`
+function openArticle(id) {
+  const a = articles.find(x => x.id === id);
+  if (!a) { goPage('home'); return; }
+  const author = users.find(u => u.id === a.authorId) || { username: a.authorName || 'Invitado', followers: [], following: [] };
+  const authorExists = !!a.authorId && users.some(u => u.id === a.authorId);
+  const initials = author.username.slice(0, 2).toUpperCase();
+  const isLiked = currentUser && a.likedBy && a.likedBy.includes(currentUser.id);
+  const isFollowing = currentUser && authorExists && currentUser.following && currentUser.following.includes(author.id);
+  const cover = resolveImg(a);
+  const paras = a.body.split('\n').filter(p => p.trim()).map(p => `<p style="font-size:15px;line-height:1.8;margin-bottom:14px">${p}</p>`).join('');
+  document.getElementById('articleContent').innerHTML = `
     <span class="badge ${catClass(a.cat)}" style="margin-bottom:14px;display:inline-block">${catLabel(a.cat)}</span>
     <h1 style="font-size:22px;font-weight:500;margin-bottom:16px;line-height:1.35">${a.title}</h1>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:0.5px solid var(--color-border-tertiary)">
-      <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="viewUserProfile(${author.id})">
+      <div style="display:flex;align-items:center;gap:10px;cursor:${authorExists ? 'pointer' : 'default'}" ${authorExists ? `onclick="viewUserProfile(${author.id})"` : ''}>
         <div style="width:36px;height:36px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#3C3489">${initials}</div>
         <div>
           <p style="font-size:14px;font-weight:500">${author.username}</p>
           <p style="font-size:12px;color:var(--color-text-secondary)">${author.followers.length} seguidores · ${a.date}</p>
         </div>
       </div>
-      ${currentUser&&currentUser.id!==author.id?`<button class="btn btn-sm ${isFollowing?'':'btn-primary'}" onclick="toggleFollow(${author.id},this)">${isFollowing?'Siguiendo':'Seguir'}</button>`:''}
+      ${currentUser && authorExists && currentUser.id !== author.id ? `<button class="btn btn-sm ${isFollowing ? '' : 'btn-primary'}" onclick="toggleFollow(${author.id}, this)">${isFollowing ? 'Siguiendo' : 'Seguir'}</button>` : ''}
     </div>
     <img src="${cover}" style="width:100%;border-radius:var(--border-radius-md);margin-bottom:20px;max-height:340px;object-fit:cover" onerror="this.style.display='none'">
     <div style="margin-bottom:24px">${paras}</div>
     <div style="display:flex;align-items:center;gap:12px;padding-top:16px;border-top:0.5px solid var(--color-border-tertiary)">
-      <button class="btn btn-sm" id="likeBtn" onclick="toggleLike(${a.id},this)" style="${isLiked?'color:#A32D2D;border-color:#F09595':''}">
+      <button class="btn btn-sm" id="likeBtn" onclick="toggleLike(${a.id}, this)" style="${isLiked ? 'color:#A32D2D;border-color:#F09595' : ''}">
         <i class="ti ti-heart" aria-hidden="true"></i> <span id="likeCount">${a.likes}</span> Me gusta
       </button>
-      ${currentUser&&currentUser.id===author.id?`<button class="btn btn-sm btn-danger-solid" onclick="deleteArticle(${a.id})"><i class="ti ti-trash" aria-hidden="true"></i> Eliminar</button>`:''}
-      ${currentUser?`<button class="btn btn-sm btn-primary" onclick="goPage('write')"><i class="ti ti-edit" aria-hidden="true"></i> Escribir artículo</button>`:''}
+      ${currentUser && currentUser.id === author.id ? `<button class="btn btn-sm btn-danger-solid" onclick="deleteArticle(${a.id})"><i class="ti ti-trash" aria-hidden="true"></i> Eliminar</button>` : ''}
+      ${!currentUser && !authorExists && a.authorName ? `<button class="btn btn-sm btn-danger-solid" onclick="deleteGuestArticle(${a.id})"><i class="ti ti-trash" aria-hidden="true"></i> Eliminar</button>` : ''}
+      ${currentUser ? `<button class="btn btn-sm btn-primary" onclick="goPage('write')"><i class="ti ti-edit" aria-hidden="true"></i> Escribir artículo</button>` : ''}
     </div>`;
   goPage('article');
 }
 
-function toggleLike(id,btn){
-  if(!currentUser){alert('Inicia sesión para dar me gusta');return;}
-  const a=articles.find(x=>x.id===id);if(!a.likedBy)a.likedBy=[];
-  const idx=a.likedBy.indexOf(currentUser.id);
-  if(idx>-1){a.likedBy.splice(idx,1);a.likes--;btn.style.color='';btn.style.borderColor='';}
-  else{a.likedBy.push(currentUser.id);a.likes++;btn.style.color='#A32D2D';btn.style.borderColor='#F09595';}
+function toggleLike(id, btn) {
+  if (!currentUser) { alert('Inicia sesión para dar me gusta'); return; }
+  const article = articles.find(a => a.id === id);
+  if (!article) return;
+  article.likedBy = article.likedBy || [];
+  const idx = article.likedBy.findIndex(x => x === currentUser.id);
+  if (idx > -1) {
+    article.likedBy.splice(idx, 1);
+    article.likes = Math.max(0, article.likes - 1);
+  } else {
+    article.likedBy.push(currentUser.id);
+    article.likes += 1;
+  }
   saveState();
-  document.getElementById('likeCount').textContent=a.likes;
+  document.getElementById('likeCount').textContent = article.likes;
+  if (btn) {
+    if (article.likedBy.includes(currentUser.id)) {
+      btn.style.color = '#A32D2D';
+      btn.style.borderColor = '#F09595';
+    } else {
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }
+  }
 }
-function toggleFollow(userId,btn){
-  if(!currentUser)return;
-  const target=users.find(u=>u.id===userId);
-  const fidx=currentUser.following.indexOf(userId);
-  if(fidx>-1){currentUser.following.splice(fidx,1);target.followers=target.followers.filter(id=>id!==currentUser.id);btn.textContent='Seguir';btn.classList.add('btn-primary');}
-  else{currentUser.following.push(userId);target.followers.push(currentUser.id);btn.textContent='Siguiendo';btn.classList.remove('btn-primary');}
-  saveState();
-}
-function deleteArticle(id){
-  const article=articles.find(a=>a.id===id);
-  if(!article||!currentUser||article.authorId!==currentUser.id) return;
-  if(!confirm('¿Eliminar este artículo?')) return;
-  articles=articles.filter(a=>a.id!==id);
+
+function toggleFollow(userId, btn) {
+  if (!currentUser) return;
+  const target = users.find(u => u.id === userId);
+  if (!target) return;
+  currentUser.following = currentUser.following || [];
+  target.followers = target.followers || [];
+  const isFollowing = currentUser.following.includes(userId);
+  if (isFollowing) {
+    currentUser.following = currentUser.following.filter(id => id !== userId);
+    target.followers = target.followers.filter(id => id !== currentUser.id);
+    btn.textContent = 'Seguir';
+    btn.classList.add('btn-primary');
+  } else {
+    currentUser.following.push(userId);
+    target.followers.push(currentUser.id);
+    btn.textContent = 'Siguiendo';
+    btn.classList.remove('btn-primary');
+  }
   saveState();
   renderArticles();
-  if(document.getElementById('pg-article').classList.contains('active')) goPage('home');
-  if(document.getElementById('pg-profile').classList.contains('active')) renderProfile();
 }
-function viewUserProfile(uid){
-  const u=users.find(x=>x.id===uid);if(!u){goPage('home');return;}
-  const userArts=articles.filter(a=>a.authorId===uid);
-  const isFollowing=currentUser&&currentUser.following&&currentUser.following.includes(uid);
-  const isOwnProfile=currentUser&&currentUser.id===uid;
-  const initials=u.username.slice(0,2).toUpperCase();
-  document.getElementById('profileContent').innerHTML=`
+
+function deleteArticle(id) {
+  const article = articles.find(a => a.id === id);
+  if (!article || !currentUser || article.authorId !== currentUser.id) return;
+  if (!confirm('¿Eliminar este artículo?')) return;
+  articles = articles.filter(a => a.id !== id);
+  saveState();
+  renderArticles();
+  if (document.getElementById('pg-article').classList.contains('active')) goPage('home');
+  if (document.getElementById('pg-profile').classList.contains('active')) renderProfile();
+}
+
+function deleteGuestArticle(id) {
+  const article = articles.find(a => a.id === id);
+  if (!article || article.authorId) return;
+  const guestName = prompt('Ingresa el nombre del autor para eliminar el artículo');
+  if (!guestName || guestName.trim() !== article.authorName) {
+    alert('Nombre incorrecto. El artículo no se eliminó.');
+    return;
+  }
+  articles = articles.filter(a => a.id !== id);
+  saveState();
+  renderArticles();
+  if (document.getElementById('pg-article').classList.contains('active')) goPage('home');
+}
+
+function viewUserProfile(uid) {
+  const u = users.find(x => x.id === uid);
+  if (!u) { goPage('home'); return; }
+  const userArts = articles.filter(a => a.authorId === uid);
+  const isFollowing = currentUser && currentUser.following && currentUser.following.includes(uid);
+  const isOwnProfile = currentUser && currentUser.id === uid;
+  const initials = u.username.slice(0, 2).toUpperCase();
+  document.getElementById('profileContent').innerHTML = `
     <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:24px;margin-bottom:20px">
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
         <div style="width:60px;height:60px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:500;color:#3C3489">${initials}</div>
@@ -382,8 +440,8 @@ function viewUserProfile(uid){
           <h2 style="font-size:18px;font-weight:500">${u.username}</h2>
           <p style="font-size:13px;color:var(--color-text-secondary);margin-top:2px">${u.bio}</p>
         </div>
-        ${isOwnProfile?`<button class="btn btn-sm" onclick="goPage('settings')"><i class="ti ti-settings" aria-hidden="true"></i> Ajustes</button>`:''}
-        ${!isOwnProfile&&currentUser?`<button class="btn btn-sm ${isFollowing?'':'btn-primary'}" onclick="toggleFollow(${uid},this);renderProfile()">${isFollowing?'Siguiendo':'Seguir'}</button>`:''}
+        ${isOwnProfile ? `<button class="btn btn-sm" onclick="goPage('settings')"><i class="ti ti-settings" aria-hidden="true"></i> Ajustes</button>` : ''}
+        ${!isOwnProfile && currentUser ? `<button class="btn btn-sm ${isFollowing ? '' : 'btn-primary'}" onclick="toggleFollow(${uid}, this);renderProfile()">${isFollowing ? 'Siguiendo' : 'Seguir'}</button>` : ''}
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
         <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;text-align:center">
@@ -401,9 +459,9 @@ function viewUserProfile(uid){
       </div>
     </div>
     <h3 style="font-size:15px;font-weight:500;margin-bottom:12px">Artículos publicados</h3>
-    ${userArts.length?userArts.map(a=>{
-      const cover=resolveImg(a);
-      return`<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);margin-bottom:10px;overflow:hidden;cursor:pointer" onclick="openArticle(${a.id})">
+    ${userArts.length ? userArts.map(a => {
+      const cover = resolveImg(a);
+      return `<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);margin-bottom:10px;overflow:hidden;cursor:pointer" onclick="openArticle(${a.id})">
         <img src="${cover}" style="width:100%;height:100px;object-fit:cover;display:block" onerror="this.style.display='none'">
         <div style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
           <div style="flex:1;margin-right:12px">
@@ -411,84 +469,158 @@ function viewUserProfile(uid){
             <p style="font-size:14px;font-weight:500">${a.title}</p>
           </div>
           <div style="display:flex;align-items:center;gap:6px">
-            ${isOwnProfile?`<button class="btn btn-sm btn-danger-solid" onclick="event.stopPropagation();deleteArticle(${a.id})"><i class="ti ti-trash" aria-hidden="true"></i></button>`:''}
+            ${isOwnProfile ? `<button class="btn btn-sm btn-danger-solid" onclick="event.stopPropagation();deleteArticle(${a.id})"><i class="ti ti-trash" aria-hidden="true"></i></button>` : ''}
             <i class="ti ti-chevron-right" style="color:var(--color-text-tertiary)" aria-hidden="true"></i>
           </div>
         </div>
       </div>`;
-    }).join(''):'<p style="color:var(--color-text-secondary);font-size:14px">Sin artículos aún.</p>'}`;
+    }).join('') : '<p style="color:var(--color-text-secondary);font-size:14px">Sin artículos aún.</p>'}`;
   goPage('profile');
 }
-function renderProfile(){if(!currentUser){goPage('login');return;}viewUserProfile(currentUser.id);}
-function renderSettings(){if(!currentUser)return;document.getElementById('editBio').value=currentUser.bio||'';document.getElementById('bioMsg').style.display='none';}
-function saveBio(){
-  if(!currentUser)return;
-  currentUser.bio=document.getElementById('editBio').value.trim();
-  const u=users.find(x=>x.id===currentUser.id);if(u)u.bio=currentUser.bio;
+
+function renderProfile() { if (!currentUser) { goPage('login'); return; } viewUserProfile(currentUser.id); }
+
+function renderSettings() { if (!currentUser) return; document.getElementById('editBio').value = currentUser.bio || ''; document.getElementById('bioMsg').style.display = 'none'; }
+
+function saveBio() {
+  if (!currentUser) return;
+  currentUser.bio = document.getElementById('editBio').value.trim();
+  const u = users.find(x => x.id === currentUser.id);
+  if (u) u.bio = currentUser.bio;
   saveState();
-  const msg=document.getElementById('bioMsg');msg.style.display='block';
-  setTimeout(()=>msg.style.display='none',2000);
+  const msg = document.getElementById('bioMsg');
+  msg.style.display = 'block';
+  setTimeout(() => msg.style.display = 'none', 2000);
 }
-function openDeleteModal(){document.getElementById('confirmUsername').value='';document.getElementById('confirmError').style.display='none';document.getElementById('deleteModal').classList.add('open');}
-function closeDeleteModal(){document.getElementById('deleteModal').classList.remove('open');}
-function confirmDelete(){
-  const typed=document.getElementById('confirmUsername').value.trim();
-  const err=document.getElementById('confirmError');
-  if(typed!==currentUser.username){err.style.display='block';return;}
-  const uid=currentUser.id;
-  articles=articles.filter(a=>a.authorId!==uid);
-  users=users.filter(u=>u.id!==uid);
-  users.forEach(u=>{u.followers=u.followers.filter(id=>id!==uid);u.following=u.following.filter(id=>id!==uid);});
-  currentUser=null;saveState();updateNav();closeDeleteModal();goPage('home');
+
+function deleteAccount() {
+  if (!currentUser) return;
+  const confirmed = confirm('¿Eliminar tu cuenta y todos tus artículos? Esta acción no se puede deshacer.');
+  if (!confirmed) return;
+  const uid = currentUser.id;
+  articles = articles.filter(a => a.authorId !== uid);
+  users = users.filter(u => u.id !== uid);
+  users.forEach(u => { u.followers = u.followers.filter(id => id !== uid); u.following = u.following.filter(id => id !== uid); });
+  currentUser = null;
+  saveState();
+  updateNav();
+  goPage('home');
 }
-function doLogin(){
-  const u=document.getElementById('loginUser').value.trim();
-  const p=document.getElementById('loginPass').value;
-  const found=users.find(x=>x.username===u&&x.pass===p);
-  const msg=document.getElementById('loginMsg');
-  if(found){currentUser=found;saveState();updateNav();goPage('home');}
-  else{msg.textContent='Usuario o contraseña incorrectos';msg.style.display='block';}
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const found = users.find(x => x.username === u && x.pass === p);
+  const msg = document.getElementById('loginMsg');
+  if (found) { currentUser = found; saveState(); updateNav(); goPage('home'); }
+  else { msg.textContent = 'Usuario o contraseña incorrectos'; msg.style.display = 'block'; }
 }
-function doRegister(){
-  const u=document.getElementById('regUser').value.trim();
-  const e=document.getElementById('regEmail').value.trim();
-  const p=document.getElementById('regPass').value;
-  const msg=document.getElementById('loginMsg');
-  if(!u||!e||!p){msg.textContent='Completa todos los campos';msg.style.display='block';return;}
-  if(users.find(x=>x.username===u)){msg.textContent='El usuario ya existe';msg.style.display='block';return;}
-  const nu={id:Date.now(),username:u,email:e,pass:p,followers:[],following:[],bio:'Nuevo escritor en Tech Collective'};
-  users.push(nu);currentUser=nu;saveState();updateNav();goPage('home');
+
+function doRegister() {
+  const u = document.getElementById('regUser').value.trim();
+  const e = document.getElementById('regEmail').value.trim();
+  const p = document.getElementById('regPass').value;
+  const msg = document.getElementById('loginMsg');
+  if (!u || !e || !p) { msg.textContent = 'Completa todos los campos'; msg.style.display = 'block'; return; }
+  if (users.find(x => x.username === u)) { msg.textContent = 'El usuario ya existe'; msg.style.display = 'block'; return; }
+  const nu = { id: Date.now(), username: u, email: e, pass: p, followers: [], following: [], bio: 'Nuevo escritor en Tech Collective' };
+  users.push(nu);
+  currentUser = nu;
+  saveState();
+  updateNav();
+  goPage('home');
 }
-function toggleRegister(){
-  const lf=document.getElementById('loginForm'),rf=document.getElementById('registerForm'),t=document.getElementById('loginTitle'),msg=document.getElementById('loginMsg');
-  msg.style.display='none';
-  if(lf.style.display==='none'){lf.style.display='block';rf.style.display='none';t.textContent='Iniciar sesión';}
-  else{lf.style.display='none';rf.style.display='block';t.textContent='Crear cuenta';}
+
+function toggleRegister() {
+  const lf = document.getElementById('loginForm');
+  const rf = document.getElementById('registerForm');
+  const t = document.getElementById('loginTitle');
+  const msg = document.getElementById('loginMsg');
+  msg.style.display = 'none';
+  if (lf.style.display === 'none') { lf.style.display = 'block'; rf.style.display = 'none'; t.textContent = 'Iniciar sesión'; }
+  else { lf.style.display = 'none'; rf.style.display = 'block'; t.textContent = 'Crear cuenta'; }
 }
-function handleImgUpload(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{uploadedImgData=e.target.result;document.getElementById('previewImg').src=uploadedImgData;document.getElementById('imgPreview').style.display='block';document.getElementById('imgDropZone').style.display='none';};
+
+function handleImgUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    uploadedImgData = e.target.result;
+    document.getElementById('previewImg').src = uploadedImgData;
+    document.getElementById('imgPreview').style.display = 'block';
+    document.getElementById('imgDropZone').style.display = 'none';
+  };
   reader.readAsDataURL(file);
 }
-function handleDrop(e){
-  e.preventDefault();const file=e.dataTransfer.files[0];
-  if(file&&file.type.startsWith('image/')){const input=document.getElementById('imgInput');const dt=new DataTransfer();dt.items.add(file);input.files=dt.files;handleImgUpload(input);}
+
+function handleDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const input = document.getElementById('imgInput');
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    handleImgUpload(input);
+  }
 }
-function removeImg(){uploadedImgData='';document.getElementById('imgPreview').style.display='none';document.getElementById('imgDropZone').style.display='block';document.getElementById('imgInput').value='';}
-function publishArticle(){
-  const title=document.getElementById('artTitle').value.trim();
-  const cat=document.getElementById('artCat').value;
-  const body=document.getElementById('artBody').value.trim();
-  const msg=document.getElementById('writeMsg');
-  if(!title||!cat||!body){msg.textContent='Completa título, categoría y contenido';msg.style.display='block';msg.style.color='#A32D2D';return;}
-  articles.unshift({id:Date.now(),authorId:currentUser.id,title,cat,body,img:uploadedImgData,likes:0,date:new Date().toISOString().slice(0,10),likedBy:[]});
+
+function removeImg() {
+  uploadedImgData = '';
+  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('imgDropZone').style.display = 'block';
+  document.getElementById('imgInput').value = '';
+}
+
+function publishArticle() {
+  const title = document.getElementById('artTitle').value.trim();
+  const cat = document.getElementById('artCat').value;
+  const body = document.getElementById('artBody').value.trim();
+  const msg = document.getElementById('writeMsg');
+  if (!title || !cat || !body) {
+    msg.textContent = 'Completa título, categoría y contenido';
+    msg.style.display = 'block';
+    msg.style.color = '#A32D2D';
+    return;
+  }
+  const guestNameInput = document.getElementById('guestAuthorName');
+  const authorName = guestNameInput ? guestNameInput.value.trim() : '';
+  if (!currentUser && !authorName) {
+    msg.textContent = 'Escribe el nombre del autor para publicar como invitado';
+    msg.style.display = 'block';
+    msg.style.color = '#A32D2D';
+    return;
+  }
+  const article = {
+    id: Date.now(),
+    authorId: currentUser ? currentUser.id : null,
+    authorName: currentUser ? undefined : authorName,
+    title,
+    cat,
+    body,
+    img: uploadedImgData,
+    likes: 0,
+    likedBy: [],
+    date: new Date().toISOString().slice(0, 10)
+  };
+  articles.unshift(article);
   saveState();
-  document.getElementById('artTitle').value='';document.getElementById('artCat').value='';document.getElementById('artBody').value='';removeImg();
-  msg.textContent='¡Artículo publicado!';msg.style.display='block';msg.style.color='#3B6D11';
-  setTimeout(()=>goPage('home'),1200);
+  document.getElementById('artTitle').value = '';
+  document.getElementById('artCat').value = '';
+  document.getElementById('artBody').value = '';
+  removeImg();
+  msg.textContent = '¡Artículo publicado!';
+  msg.style.display = 'block';
+  msg.style.color = '#3B6D11';
+  setTimeout(() => goPage('home'), 1200);
 }
-loadState();
-renderArticles();
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  updateNav();
+  renderArticles();
+});
 </script>
+
 
